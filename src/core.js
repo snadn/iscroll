@@ -102,6 +102,7 @@ IScroll.prototype = {
 	},
 
 	_start: function (e) {
+		this._execEvent('start', e);
 		// React to left mouse button only
 		if ( utils.eventType[e.type] != 1 ) {
 			if ( e.button !== 0 ) {
@@ -153,6 +154,7 @@ IScroll.prototype = {
 	},
 
 	_move: function (e) {
+		this._execEvent('move', e);
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
 		}
@@ -250,6 +252,7 @@ IScroll.prototype = {
 	},
 
 	_end: function (e) {
+		this._execEvent('end', e);
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
 		}
