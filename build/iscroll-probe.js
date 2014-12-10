@@ -219,18 +219,24 @@ var utils = (function () {
 	});
 
 	me.tap = function (e, eventName) {
-		var ev = document.createEvent('Event');
-		ev.initEvent(eventName, true, true);
-		ev.pageX = e.pageX;
-		ev.pageY = e.pageY;
-		e.target.dispatchEvent(ev);
+		if ( !(/tap/i).test(e._constructed) ) {
+			e._constructed = e._constructed ? e._constructed + ' tap' : 'tap';
+
+			var ev = document.createEvent('Event');
+			ev.initEvent(eventName, true, true);
+			ev.pageX = e.pageX;
+			ev.pageY = e.pageY;
+			e.target.dispatchEvent(ev);
+		}
 	};
 
 	me.click = function (e) {
 		var target = e.target,
 			ev;
 
-		if ( !(/(SELECT|INPUT|TEXTAREA)/i).test(target.tagName) ) {
+		if ( !(/click/i).test(e._constructed) && !(/(SELECT|INPUT|TEXTAREA)/i).test(target.tagName) ) {
+			e._constructed = e._constructed ? e._constructed + ' click' : 'click';
+
 			ev = document.createEvent('MouseEvents');
 			ev.initMouseEvent('click', true, true, e.view, 1,
 				target.screenX, target.screenY, target.clientX, target.clientY,
@@ -379,6 +385,7 @@ IScroll.prototype = {
 	},
 
 	_start: function (e) {
+		this._execEvent('beforestart', e);
 		// React to left mouse button only
 		if ( utils.eventType[e.type] != 1 ) {
 			if ( e.button !== 0 ) {
@@ -426,10 +433,12 @@ IScroll.prototype = {
 		this.pointX    = point.pageX;
 		this.pointY    = point.pageY;
 
+		this._execEvent('start', e);
 		this._execEvent('beforeScrollStart');
 	},
 
 	_move: function (e) {
+		this._execEvent('beforemove', e);
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
 		}
@@ -506,6 +515,7 @@ IScroll.prototype = {
 		this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0;
 		this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
 
+		this._execEvent('move', e);
 		if ( !this.moved ) {
 			this._execEvent('scrollStart');
 		}
@@ -533,6 +543,7 @@ IScroll.prototype = {
 	},
 
 	_end: function (e) {
+		this._execEvent('beforeend', e);
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
 		}
@@ -555,6 +566,8 @@ IScroll.prototype = {
 		this.isInTransition = 0;
 		this.initiated = 0;
 		this.endTime = utils.getTime();
+
+		this._execEvent('end', e);
 
 		// reset if we are outside of the boundaries
 		if ( this.resetPosition(this.options.bounceTime) ) {
