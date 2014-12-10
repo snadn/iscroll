@@ -102,7 +102,7 @@ IScroll.prototype = {
 	},
 
 	_start: function (e) {
-		this._execEvent('start', e);
+		this._execEvent('beforestart', e);
 		// React to left mouse button only
 		if ( utils.eventType[e.type] != 1 ) {
 			if ( e.button !== 0 ) {
@@ -150,11 +150,12 @@ IScroll.prototype = {
 		this.pointX    = point.pageX;
 		this.pointY    = point.pageY;
 
+		this._execEvent('start', e);
 		this._execEvent('beforeScrollStart');
 	},
 
 	_move: function (e) {
-		this._execEvent('move', e);
+		this._execEvent('beforemove', e);
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
 		}
@@ -231,6 +232,7 @@ IScroll.prototype = {
 		this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0;
 		this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
 
+		this._execEvent('move', e);
 		if ( !this.moved ) {
 			this._execEvent('scrollStart');
 		}
@@ -252,7 +254,7 @@ IScroll.prototype = {
 	},
 
 	_end: function (e) {
-		this._execEvent('end', e);
+		this._execEvent('beforeend', e);
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
 		}
@@ -275,6 +277,8 @@ IScroll.prototype = {
 		this.isInTransition = 0;
 		this.initiated = 0;
 		this.endTime = utils.getTime();
+
+		this._execEvent('end', e);
 
 		// reset if we are outside of the boundaries
 		if ( this.resetPosition(this.options.bounceTime) ) {
