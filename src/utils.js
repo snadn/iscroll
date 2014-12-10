@@ -217,18 +217,24 @@ var utils = (function () {
 	});
 
 	me.tap = function (e, eventName) {
-		var ev = document.createEvent('Event');
-		ev.initEvent(eventName, true, true);
-		ev.pageX = e.pageX;
-		ev.pageY = e.pageY;
-		e.target.dispatchEvent(ev);
+		if ( !(/tap/i).test(e._constructed) ) {
+			e._constructed = e._constructed ? e._constructed + ' tap' : 'tap';
+
+			var ev = document.createEvent('Event');
+			ev.initEvent(eventName, true, true);
+			ev.pageX = e.pageX;
+			ev.pageY = e.pageY;
+			e.target.dispatchEvent(ev);
+		}
 	};
 
 	me.click = function (e) {
 		var target = e.target,
 			ev;
 
-		if ( !(/(SELECT|INPUT|TEXTAREA)/i).test(target.tagName) ) {
+		if ( !(/click/i).test(e._constructed) && !(/(SELECT|INPUT|TEXTAREA)/i).test(target.tagName) ) {
+			e._constructed = e._constructed ? e._constructed + ' click' : 'click';
+
 			ev = document.createEvent('MouseEvents');
 			ev.initMouseEvent('click', true, true, e.view, 1,
 				target.screenX, target.screenY, target.clientX, target.clientY,
