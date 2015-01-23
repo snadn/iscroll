@@ -225,6 +225,9 @@ var utils = (function () {
 			ev.pageX = e.pageX;
 			ev.pageY = e.pageY;
 			e.target.dispatchEvent(ev);
+			if (ev.defaultPrevented) {
+				e.preventDefault();
+			}
 		}
 	};
 
@@ -243,6 +246,9 @@ var utils = (function () {
 
 			ev._constructed = true;
 			target.dispatchEvent(ev);
+			if (ev._prevented !== false) {
+				e.preventDefault();
+			}
 		}
 	};
 
